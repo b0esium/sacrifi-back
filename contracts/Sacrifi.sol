@@ -1,43 +1,43 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
-
-pragma solidity ^0.8.7;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Sacrifi is ERC721 {
+contract Sacrifi is ERC721, ERC721URIStorage, Ownable {
     string public constant TOKEN_URI =
         "ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
     uint256 private s_tokenCounter;
 
-    event DogMinted(uint256 indexed tokenId);
+    event CreatedNFT(uint256 indexed tokenId);
 
-    constructor() ERC721("Rugs", "RUG") {
+    constructor() ERC721("MyToken", "MTK") {
         s_tokenCounter = 0;
     }
 
-    /**
-    @dev Allows a user to mint a new NFT.
-    @notice The function mints a new NFT using the _safeMint function inherited from the ERC721 contract.
-    The NFT is assigned to the msg.sender and the DogMinted event is emitted with the token ID as the parameter.
-    The s_tokenCounter variable is incremented by 1.
-    */
-    function mintNft() external {
+    function safeMint() public onlyOwner {
         _safeMint(msg.sender, s_tokenCounter);
-        emit DogMinted(s_tokenCounter);
+        _setTokenURI(s_tokenCounter, TOKEN_URI);
         s_tokenCounter++;
+        emit CreatedNFT(s_tokenCounter);
+    }
+
+    // The following functions are overrides required by Solidity.
+
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
     }
 
     function tokenURI(
         uint256 tokenId
-    ) public view override returns (string memory) {
-        require(
-            _exists(tokenId),
-            "ERC721Metadata: URI query for nonexistent token"
-        );
-        return TOKEN_URI;
+    ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
     }
 
-    function getTokenCounter() public view returns (uint256) {
-        return s_tokenCounter;
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 }
