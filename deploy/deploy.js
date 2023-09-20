@@ -5,7 +5,6 @@ const { verify } = require("../utils/verify")
 // from hardhat-deploy plugin
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deployer } = await getNamedAccounts()
-    //@ TODO: get correct address
     console.log("Deploying contracts with the account:", deployer)
 
     const { deploy } = deployments

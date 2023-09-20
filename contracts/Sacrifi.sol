@@ -11,16 +11,24 @@ contract Sacrifi is ERC721, ERC721URIStorage, Ownable {
     uint256 private s_tokenCounter;
 
     event CreatedNFT(uint256 indexed tokenId);
+    event BurnedNFT(uint256 indexed tokenId);
 
     constructor() ERC721("MyToken", "MTK") {
         s_tokenCounter = 0;
     }
 
     function safeMint() public onlyOwner {
-        _safeMint(msg.sender, s_tokenCounter);
-        _setTokenURI(s_tokenCounter, TOKEN_URI);
         s_tokenCounter++;
         emit CreatedNFT(s_tokenCounter);
+        _safeMint(msg.sender, s_tokenCounter);
+        _setTokenURI(s_tokenCounter, TOKEN_URI);
+    }
+
+    function burn(uint256 tokenId) public {
+        require(_exists(tokenId), "Token does not exist");
+        require(msg.sender == ownerOf(tokenId), "Caller is not owner");
+        _burn(tokenId);
+        emit BurnedNFT(tokenId);
     }
 
     // The following functions are overrides required by Solidity.
